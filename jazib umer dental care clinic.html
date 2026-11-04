@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jazib Umer Dental Care Clinic Management System</title>
+    <!-- Tailwind: pehle local file (tailwind.js), na mile to internet se -->
+    <script src="tailwind.js"></script>
+    <script>window.tailwind || document.write('<script src="https://cdn.tailwindcss.com"><\/script>');</script>
+    <!-- FontAwesome: local folder (fontawesome/) aur internet dono -->
+    <link rel="stylesheet" href="fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Emergency fallback: Tailwind load na ho tab bhi tabs/dropdowns kaam karein -->
+    <style>
+        .hidden { display: none; }
+        .rotate-180 { transform: rotate(180deg); }
+        body { font-family: Inter, Arial, sans-serif; }
+        /* ---- Treatment / Shade system ---- */
+        .tx-chips{display:flex;flex-wrap:wrap;gap:8px}
+        .tx-chip{position:relative;display:inline-block}
+        .tx-chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+        .tx-chip span{display:block;padding:8px 16px;border-radius:999px;border:2px solid #cbd5e1;font-size:13px;font-weight:600;color:#475569;background:#fff}
+        .tx-chip input:checked+span{background:#0e7490;border-color:#0e7490;color:#fff}
+        .tx-box{margin-top:12px;border:1px solid #cffafe;background:#ecfeff;border-radius:14px;padding:12px}
+        .tx-box.hidden{display:none}
+        .tx-ttl{font-size:12px;font-weight:700;color:#155e75;text-align:center;margin-bottom:6px}
+        .tx-cross{display:grid;grid-template-columns:1fr 1fr;max-width:340px;margin:0 auto}
+        .tx-cross input{border:0;background:transparent;font-size:20px;letter-spacing:5px;padding:16px 8px;min-width:0;width:100%;outline:none}
+        .tx-cross input:nth-child(odd){text-align:right;direction:rtl;unicode-bidi:bidi-override}
+        .tx-cross input:nth-child(even){text-align:left}
+        .tx-cross input::placeholder{letter-spacing:0;font-size:12px}
+        .tx-cross input:nth-child(odd)::placeholder{direction:ltr;unicode-bidi:normal}
+        .tx-cross input:nth-child(1){border-right:3px solid #0e7490;border-bottom:3px solid #0e7490}
+        .tx-cross input:nth-child(2){border-bottom:3px solid #0e7490}
+        .tx-cross input:nth-child(3){border-right:3px solid #0e7490}
+        .tx-group{margin-top:10px;border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:8px 12px}
+        .tx-gt{font-weight:700;font-size:13px;color:#0e7490;margin-bottom:2px}
+        .tx-tk{display:flex;align-items:center;gap:12px;padding:9px 0;font-size:14px;color:#334155;cursor:pointer;border-top:1px solid #f1f5f9}
+        .tx-gt+.tx-tk{border-top:0}
+        .tx-tk input{width:22px;height:22px;accent-color:#0e7490}
+    </style>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        if (window.tailwind) tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-cyan-700 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-cyan-700 p-2.5 rounded-xl shadow-inner font-bold text-xl flex items-center justify-center w-11 h-11">
+                    <i class="fa-solid fa-tooth"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Jazib Umer Dental Care Clinic</h1>
+                    <p class="text-xs text-cyan-100">Patient Records & Status Management</p>
+                </div>
+            </div>
+            
+            <!-- Navbar Options -->
+            <nav class="flex items-center space-x-1 sm:space-x-2 mt-2 sm:mt-0 overflow-x-auto pb-1 sm:pb-0">
+                <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm transition-all bg-cyan-800 shadow-sm flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('records')" id="tab-btn-records" class="px-4 py-2 rounded-xl font-medium text-sm transition-all hover:bg-cyan-800/50 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-address-book"></i>
+                    <span>Records</span>
+                </button>
+                <button onclick="switchTab('new-patient')" id="tab-btn-new-patient" class="px-4 py-2 rounded-xl font-medium text-sm transition-all hover:bg-cyan-800/50 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>New Patient</span>
+                </button>
+                <button onclick="switchTab('update-patient')" id="tab-btn-update-patient" class="px-4 py-2 rounded-xl font-medium text-sm transition-all hover:bg-cyan-800/50 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-user-pen"></i>
+                    <span>Update Patient</span>
+                </button>
+                <button onclick="switchTab('delete-patient')" id="tab-btn-delete-patient" class="px-4 py-2 rounded-xl font-medium text-sm transition-all hover:bg-cyan-800/50 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-user-minus"></i>
+                    <span>Delete Patient</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+
+        <!-- ==================== 1. DASHBOARD TAB ==================== -->
+        <section id="view-dashboard" class="space-y-6">
+            <div class="bg-gradient-to-r from-cyan-600 to-teal-600 text-white p-6 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Clinic Dashboard & Analytics</h2>
+                    <p class="text-xs text-cyan-100 mt-1">Monitor total patient records, payment balances, and treatment statuses in real-time.</p>
+                </div>
+                <button onclick="switchTab('new-patient')" class="px-4 py-2.5 bg-white text-cyan-700 hover:bg-cyan-50 font-semibold rounded-xl text-xs shadow transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Add New Patient Now</span>
+                </button>
+            </div>
+
+            <!-- Backup / Restore -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-database text-cyan-600"></i>
+                        <span>Data Backup / Restore</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Doosre laptop par data le jane ke liye pehle Backup lein, phir wahan Restore karein.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="backupData()" class="px-4 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-semibold rounded-xl text-xs shadow transition-all">
+                        <i class="fa-solid fa-download"></i> Backup Data
+                    </button>
+                    <button onclick="document.getElementById('restore-file').click()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition-all">
+                        <i class="fa-solid fa-upload"></i> Restore Data
+                    </button>
+                    <input type="file" id="restore-file" accept=".json,application/json" style="display:none" onchange="restoreData(this)">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Patients</span>
+                        <h3 id="stat-total" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+                        <span class="text-[11px] text-cyan-600 font-medium">Registered records</span>
+                    </div>
+                    <div class="w-12 h-12 bg-cyan-50 text-cyan-600 rounded-2xl flex items-center justify-center text-xl shadow-inner">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Remaining Balance</span>
+                        <h3 id="stat-revenue" class="text-3xl font-bold text-emerald-600 mt-1">Rs 0</h3>
+                        <span class="text-[11px] text-emerald-600 font-medium"><i class="fa-solid fa-wallet"></i> Total due/balance</span>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl shadow-inner">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pending Treatments</span>
+                        <h3 id="stat-pending" class="text-3xl font-bold text-amber-600 mt-1">0</h3>
+                        <span class="text-[11px] text-amber-600 font-medium"><i class="fa-solid fa-clock"></i> In progress</span>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl shadow-inner">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Patients</span>
+                        <h3 id="stat-today" class="text-3xl font-bold text-teal-600 mt-1">0</h3>
+                        <span class="text-[11px] text-teal-600 font-medium"><i class="fa-solid fa-calendar-day"></i> Added today</span>
+                    </div>
+                    <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-xl shadow-inner">
+                        <i class="fa-solid fa-user-clock"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-clipboard-user text-cyan-600"></i>
+                        <span>Recent Patient Directory</span>
+                    </h3>
+                    <span id="dash-patient-count" class="text-xs text-slate-400">Total: 0</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
+                                <th class="p-4">Patient Name</th>
+                                <th class="p-4">Phone Number</th>
+                                <th class="p-4">Dental Procedure</th>
+                                <th class="p-4">Remaining Balance</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Registration Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-patients-tbody" class="divide-y divide-slate-100">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 2. RECORDS TAB ==================== -->
+        <section id="view-records" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-address-book text-cyan-600"></i>
+                            <span>All Patient Records & Payment History Logs</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Click on "View History" next to any patient to check exact dates and amounts paid.</p>
+                    </div>
+                    <div class="w-full sm:w-72">
+                        <input type="text" id="records-search" oninput="filterRecordsTable()" placeholder="Search patient by name..." class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
+                                <th class="p-4">Patient Name & Phone</th>
+                                <th class="p-4">Age / Gender</th>
+                                <th class="p-4">Procedure</th>
+                                <th class="p-4">Remaining Balance</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Payment History Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="records-table-tbody" class="divide-y divide-slate-100">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 3. NEW PATIENT TAB ==================== -->
+        <section id="view-new-patient" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-2xl mx-auto">
+                <div class="border-b border-slate-100 pb-4 mb-5">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-user-plus text-cyan-600"></i>
+                        <span>Register New Patient (New Meriz)</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Enter patient personal and dental treatment details below.</p>
+                </div>
+
+                <form id="new-patient-form" onsubmit="handleNewPatientSubmit(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Patient Name (Meriz Ka Naam)</label>
+                            <input type="text" id="np-name" required placeholder="e.g. Muhammad Ali" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Phone Number (Mobile)</label>
+                            <input type="text" id="np-phone" required placeholder="0300-1234567" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Age & Gender</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" id="np-age" min="1" max="120" required placeholder="Age" class="px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <select id="np-gender" class="px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Total Bill / Balance (Rs)</label>
+                            <input type="number" id="np-payment" min="0" required placeholder="e.g. 10000" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Dental Procedure / Problem Note</label>
+                            <div class="relative flex items-center">
+                                <input type="text" id="np-procedure" required placeholder="e.g. Root Canal, Scaling..." class="w-full pl-4 pr-10 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <div class="absolute right-3 cursor-pointer text-slate-400 hover:text-cyan-600 py-2 px-1" onclick="toggleProblemDropdown()" title="Select common procedures">
+                                    <i id="problem-arrow-icon" class="fa-solid fa-chevron-down transition-transform"></i>
+                                </div>
+                                <div id="problem-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
+                                    <div onclick="selectProblem('Normal Extraction)" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer border-b border-slate-50">Norml Extraction</div>
+                                    <div onclick="selectProblem('Surgical Extraction)" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer border-b border-slate-50">Surgical Extraction</div>
+                                    <div onclick="selectProblem('Children Extraction)" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer border-b border-slate-50">Children Extraction</div>
+                                    <div onclick="selectProblem('Lower Wisdom tooth Extraction')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer border-b border-slate-50">Lower Wisdom Tooth Extraction</div>
+                                    <div onclick="selectProblem('Upper Wisdom tooth Extraction')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer border-b border-slate-50">Upper Wisdom tooth Extraction</div>
+                                    <div onclick="selectProblem('Wisdom (Suigical Extraction)')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer border-b border-slate-50">Wisdom (Suigical Extraction)</div>
+                                    <div onclick="selectProblem('Normal (Temporary Filling)')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Normal (Temporary Filling)</div>
+                                    <div onclick="selectProblem('Amaigun Filling')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Amaigun Filling</div>
+                                    <div onclick="selectProblem('Light Cure Filling')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Light Cure Filling</div>
+                                    <div onclick="selectProblem('Front tooth')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Front tooth</div>
+                                    <div onclick="selectProblem('Posterior tooth')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Posterior tooth</div>
+                                     <div onclick="selectProblem('Normal tooth')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Normal tooth</div>
+                                      <div onclick="selectProblem('Flexible tooth')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Flexible tooth</div>
+                                       <div onclick="selectProblem('Full Denture (Normal)')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Full Denture (Normal)</div>
+                                        <div onclick="selectProblem('Full Denture (Flexible) ')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Full Denture (Flexible)</div>
+                                         <div onclick="selectProblem('Proclian Crown')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Proclian Crown</div>
+                                          <div onclick="selectProblem('Crominum Coblat (Silver Mental)s')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Crominum Coblat (Silver Mental)</div>
+                                           <div onclick="selectProblem('Zarconium')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Zarconium</div>
+                                            <div onclick="selectProblem('Normal Scaling')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Normal Scaling</div>
+                                             <div onclick="selectProblem('Deep Scaling')" class="px-4 py-2.5 text-xs text-slate-700 hover:bg-cyan-50 cursor-pointer">Deep Scaling</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Treatment Status</label>
+                            <select id="np-status" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <option value="Pending">Pending (Under Treatment)</option>
+                                <option value="Completed">Full Complete (Treatment Done)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Registration Date (Tarikh)</label>
+                        <input type="date" id="np-date" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    </div>
+
+                    <div id="np-treat"></div>
+
+                    <button type="submit" class="w-full py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-semibold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-user-check"></i>
+                        <span>Save New Patient Record</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==================== 4. UPDATE PATIENT TAB ==================== -->
+        <section id="view-update-patient" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-2xl mx-auto">
+                <div class="border-b border-slate-100 pb-4 mb-5">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-user-pen text-cyan-600"></i>
+                        <span>Update Patient Records & Email Alert</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Updates will automatically email patient name & payment to <strong>zohaibrisingstar@gmail.com</strong>.</p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Search Patient Name</label>
+                    <input type="text" id="patient-search-input" list="patient-list" oninput="onPatientSearchInput()" placeholder="Type patient name to search..." class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <datalist id="patient-list">
+                        <!-- Populated via JS -->
+                    </datalist>
+                </div>
+
+                <form id="update-patient-form" onsubmit="handleUpdatePatientSubmit(event)" class="space-y-4 pt-2 border-t border-slate-100">
+                    <input type="hidden" id="up-id">
+
+                    <div id="selected-patient-badge" class="hidden bg-cyan-50 border border-cyan-100 p-3.5 rounded-xl space-y-2">
+                        <div class="flex items-center justify-between text-xs font-medium text-cyan-800">
+                            <span>Selected Patient: <strong id="display-selected-name" class="text-cyan-900"></strong></span>
+                            <span id="current-balance-hint" class="text-emerald-700 font-semibold"></span>
+                        </div>
+                        
+                        <div class="pt-2 border-t border-cyan-200/60">
+                            <span class="text-[11px] font-bold text-cyan-900 uppercase tracking-wide block mb-1.5"><i class="fa-solid fa-clock-rotate-left"></i> Payment Update History:</span>
+                            <div id="payment-history-container" class="max-h-32 overflow-y-auto space-y-1 text-xs text-slate-700">
+                                <!-- History items populated via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Payment / Amount to Deduct (Rs)</label>
+                            <input type="number" id="up-payment" min="0" required placeholder="e.g. 2000" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Payment Date (Kab di gayi)</label>
+                            <input type="date" id="up-payment-date" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Dental Procedure</label>
+                            <input type="text" id="up-procedure" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Treatment Status</label>
+                            <select id="up-status" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Full Complete</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="up-treat"></div>
+
+                    <button type="submit" class="w-full py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-semibold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Save Updates & Email zohaibrisingstar@gmail.com</span>
+                    </button>
+                </form>
+
+                <!-- Change Registration / Patient Details -->
+                <div class="mt-6 pt-5 border-t border-slate-100">
+                    <button type="button" onclick="toggleChangeRegistration()" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-user-pen"></i>
+                        <span>Change Registration / Patient Details</span>
+                        <i id="change-registration-arrow" class="fa-solid fa-chevron-down ml-1 transition-transform"></i>
+                    </button>
+                    <div id="change-registration-panel" class="hidden mt-4 p-4 sm:p-5 bg-teal-50/60 border border-teal-100 rounded-xl">
+                        <p class="text-xs text-slate-600 mb-4">First search and select a patient above. Edit the details below and save; the updated name and details will appear throughout Dashboard, Records, Delete Patient, and payment-history views.</p>
+                        <form id="change-registration-form" onsubmit="handleChangeRegistrationSubmit(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs font-semibold text-slate-600 mb-1">Patient Name</label><input id="cr-name" type="text" required placeholder="Patient full name" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"></div>
+                                <div><label class="block text-xs font-semibold text-slate-600 mb-1">Phone Number</label><input id="cr-phone" type="text" required placeholder="0300-1234567" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"></div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs font-semibold text-slate-600 mb-1">Age</label><input id="cr-age" type="number" min="1" max="120" required placeholder="Age" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"></div>
+                                <div><label class="block text-xs font-semibold text-slate-600 mb-1">Gender</label><select id="cr-gender" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+                            </div>
+                            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Registration Date</label><input id="cr-date" type="date" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"></div>
+                            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Dental Problem / Procedure / Notes</label><textarea id="cr-procedure" rows="3" placeholder="Enter or change the patient's dental problem, procedure, or notes" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea></div>
+                            <button type="submit" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center space-x-2"><i class="fa-solid fa-floppy-disk"></i><span>Save Registration Changes Everywhere</span></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 5. DELETE PATIENT TAB ==================== -->
+        <section id="view-delete-patient" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto space-y-4">
+                <div class="border-b border-slate-100 pb-4">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-user-minus text-rose-600"></i>
+                        <span>Delete Patient Records (Meriz Delete Karein)</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Review clinic patient records and permanently remove unnecessary entries.</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
+                                <th class="p-3.5">Patient Name</th>
+                                <th class="p-3.5">Phone</th>
+                                <th class="p-3.5">Procedure</th>
+                                <th class="p-3.5">Remaining Balance</th>
+                                <th class="p-3.5">Status</th>
+                                <th class="p-3.5 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="delete-patients-tbody" class="divide-y divide-slate-100">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Viewing Detailed Payment History -->
+    <div id="history-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 animate-scaleUp">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-receipt text-cyan-600"></i>
+                    <span id="modal-patient-title">Payment History</span>
+                </h3>
+                <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="modal-history-content" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                <!-- Dynamically populated history rows -->
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex justify-end">
+                <button onclick="closeHistoryModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-all">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-medium z-50 hidden transition-all">
+        Action completed successfully!
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const todayDateStr = new Date().toISOString().split('T')[0];
+
+        let patients = JSON.parse(localStorage.getItem('mah_ijaz_dental_patients_v12')) || [
+            { 
+                id: 101, 
+                name: "Muhammad Ali", 
+                phone: "0300-4567891", 
+                age: 32, 
+                gender: "Male", 
+                procedure: "Scaling & Polishing", 
+                payment: 1500, 
+                status: "Completed", 
+                date: todayDateStr,
+                history: [{ date: todayDateStr, amount: 1500, note: "Initial Registration / Bill" }]
+            },
+            { 
+                id: 102, 
+                name: "Ayesha Malik", 
+                phone: "0321-9876543", 
+                age: 26, 
+                gender: "Female", 
+                procedure: "Root Canal Treatment", 
+                payment: 10000, 
+                status: "Pending", 
+                date: todayDateStr,
+                history: [{ date: todayDateStr, amount: 10000, note: "Initial Registration / Bill" }]
+            }
+        ];
+
+        window.onload = function() {
+            document.getElementById('np-date').value = todayDateStr;
+            document.getElementById('up-payment-date').value = todayDateStr;
+
+            renderDashboard();
+            renderRecordsTable();
+            populateUpdateList();
+            renderDeleteTable();
+
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('problem-dropdown-menu');
+                const arrow = document.getElementById('problem-arrow-icon');
+                const container = dropdown.parentElement;
+                if (!container.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                    arrow.classList.remove('rotate-180');
+                }
+            });
+        };
+
+        function saveData() {
+            localStorage.setItem('mah_ijaz_dental_patients_v12', JSON.stringify(patients));
+            renderDashboard();
+            renderRecordsTable();
+            populateUpdateList();
+            renderDeleteTable();
+        }
+
+        // ==================== BACKUP / RESTORE ====================
+        function backupData() {
+            const blob = new Blob([JSON.stringify(patients, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `dental-backup-${todayDateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            showToast('Backup file download ho gayi!');
+        }
+
+        function restoreData(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function() {
+                try {
+                    const data = JSON.parse(reader.result);
+                    if (!Array.isArray(data) || data.some(p => typeof p !== 'object' || p === null || !('name' in p))) {
+                        throw new Error('invalid');
+                    }
+                    if (confirm(`Is backup mein ${data.length} patients hain. Maujooda data replace ho jayega. Continue?`)) {
+                        patients = data;
+                        saveData();
+                        showToast('Data restore ho gaya!');
+                    }
+                } catch (err) {
+                    alert('Yeh sahi backup file nahi hai.');
+                }
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        function toggleProblemDropdown() {
+            const dropdown = document.getElementById('problem-dropdown-menu');
+            const arrow = document.getElementById('problem-arrow-icon');
+            dropdown.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+
+        function selectProblem(problemName) {
+            document.getElementById('np-procedure').value = problemName;
+            document.getElementById('problem-dropdown-menu').classList.add('hidden');
+            document.getElementById('problem-arrow-icon').classList.remove('rotate-180');
+        }
+
+        function switchTab(tabName) {
+            ['dashboard', 'records', 'new-patient', 'update-patient', 'delete-patient'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (btn) {
+                    btn.classList.remove('bg-cyan-800', 'shadow-sm');
+                    btn.classList.add('hover:bg-cyan-800/50');
+                }
+            });
+
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-cyan-800', 'shadow-sm');
+                activeBtn.classList.remove('hover:bg-cyan-800/50');
+            }
+
+            if (tabName === 'dashboard') renderDashboard();
+            if (tabName === 'records') renderRecordsTable();
+            if (tabName === 'update-patient') populateUpdateList();
+            if (tabName === 'delete-patient') renderDeleteTable();
+        }
+
+        // ==================== DASHBOARD RENDER ====================
+        function renderDashboard() {
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            const totalPatients = patients.length;
+            const totalRevenue = patients.reduce((sum, p) => sum + (Number(p.payment) || 0), 0);
+            const pendingCount = patients.filter(p => p.status === 'Pending').length;
+            const todayCount = patients.filter(p => p.date === todayStr).length;
+
+            document.getElementById('stat-total').innerText = totalPatients;
+            document.getElementById('stat-revenue').innerText = `Rs ${totalRevenue.toLocaleString()}`;
+            document.getElementById('stat-pending').innerText = pendingCount;
+            document.getElementById('stat-today').innerText = todayCount;
+            document.getElementById('dash-patient-count').innerText = `Total: ${totalPatients}`;
+
+            const tbody = document.getElementById('dashboard-patients-tbody');
+            tbody.innerHTML = '';
+
+            if (patients.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 text-xs">No patient records found.</td></tr>`;
+                return;
+            }
+
+            patients.forEach(p => {
+                const statusColor = p.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 font-semibold text-slate-800 flex items-center space-x-2.5">
+                            <span class="w-8 h-8 rounded-full bg-cyan-50 text-cyan-700 flex items-center justify-center text-xs font-bold">
+                                ${p.name.charAt(0)}
+                            </span>
+                            <span>${p.name}</span>
+                        </td>
+                        <td class="p-4 text-slate-600">${p.phone}</td>
+                        <td class="p-4 text-slate-700 font-medium">${p.procedure}</td>
+                        <td class="p-4 font-semibold text-emerald-600">Rs ${(Number(p.payment) || 0).toLocaleString()}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${statusColor}">${p.status}</span></td>
+                        <td class="p-4 text-slate-400 text-xs">${p.date}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ==================== RECORDS TABLE RENDER ====================
+        function renderRecordsTable(filterText = '') {
+            const tbody = document.getElementById('records-table-tbody');
+            tbody.innerHTML = '';
+
+            const filtered = patients.filter(p => p.name.toLowerCase().includes(filterText.toLowerCase()));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 text-xs">No records found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const statusColor = p.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 font-semibold text-slate-800">
+                            <div>${p.name}</div>
+                            <div class="text-xs text-slate-500 font-normal"><i class="fa-solid fa-phone text-[10px]"></i> ${p.phone}</div>
+                        </td>
+                        <td class="p-4 text-slate-600 text-xs">
+                            <div>${p.age} Yrs</div>
+                            <div class="text-slate-400">${p.gender}</div>
+                        </td>
+                        <td class="p-4 text-slate-700 font-medium text-xs">${p.procedure}${txTags(p)}</td>
+                        <td class="p-4 font-semibold text-emerald-600 text-xs">Rs ${(Number(p.payment) || 0).toLocaleString()}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${statusColor}">${p.status}</span></td>
+                        <td class="p-4">
+                            <button onclick="openHistoryModal(${p.id})" class="px-3 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5 shadow-sm">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <span>View History</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterRecordsTable() {
+            const query = document.getElementById('records-search').value;
+            renderRecordsTable(query);
+        }
+
+        // ==================== HISTORY MODAL HANDLERS ====================
+        function openHistoryModal(patientId) {
+            const p = patients.find(item => item.id === patientId);
+            if (!p) return;
+
+            document.getElementById('modal-patient-title').innerText = `${p.name} - Payment History`;
+            const contentContainer = document.getElementById('modal-history-content');
+            contentContainer.innerHTML = '';
+
+            if (!p.history || p.history.length === 0) {
+                contentContainer.innerHTML = `<p class="text-slate-400 text-xs text-center py-4 italic">No payment history recorded for this patient.</p>`;
+            } else {
+                p.history.forEach((h, index) => {
+                    contentContainer.innerHTML += `
+                        <div class="bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs space-y-2">
+                            <div class="flex justify-between items-start gap-3">
+                                <div class="min-w-0">
+                                    <span class="font-bold text-slate-700 block"><i class="fa-regular fa-calendar text-cyan-600 mr-1"></i> ${escapeHistoryText(h.date || '')}</span>
+                                    <span class="text-slate-500 text-[11px] break-words">${escapeHistoryText(h.note || 'Payment Log')}</span>
+                                </div>
+                                <span class="font-bold text-emerald-600 text-sm whitespace-nowrap">Rs ${(Number(h.amount) || 0).toLocaleString()}</span>
+                            </div>
+                            <div class="flex gap-2 justify-end border-t border-slate-200 pt-2">
+                                <button onclick="editPaymentHistory(${p.id}, ${index})" class="px-3 py-1.5 bg-cyan-100 hover:bg-cyan-200 text-cyan-800 rounded-lg font-semibold"><i class="fa-solid fa-pen-to-square mr-1"></i>Edit</button>
+                                <button onclick="deletePaymentHistory(${p.id}, ${index})" class="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-semibold"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            contentContainer.insertAdjacentHTML('afterbegin', txDetailsHtml(p));
+            document.getElementById('history-modal').classList.remove('hidden');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('history-modal').classList.add('hidden');
+        }
+
+        // Safely display text inside payment history cards.
+        function escapeHistoryText(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[char]));
+        }
+
+        // Edit the date, amount, or note/problem for any payment-history entry.
+        function editPaymentHistory(patientId, historyIndex) {
+            const patient = patients.find(item => item.id === patientId);
+            const entry = patient && patient.history && patient.history[historyIndex];
+            if (!entry) return;
+
+            const newDate = prompt('Enter payment date (YYYY-MM-DD):', entry.date || '');
+            if (newDate === null) return;
+            const cleanDate = newDate.trim();
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanDate) || Number.isNaN(Date.parse(cleanDate))) {
+                alert('Please enter a valid date in YYYY-MM-DD format.');
+                return;
+            }
+
+            const newAmountText = prompt('Enter payment amount (numbers only):', String(entry.amount ?? 0));
+            if (newAmountText === null) return;
+            const newAmount = Number(newAmountText);
+            if (!newAmountText.trim() || !Number.isFinite(newAmount) || newAmount < 0) {
+                alert('Please enter a valid amount (0 or higher).');
+                return;
+            }
+
+            const newNote = prompt('Edit payment note / problem / details:', entry.note || 'Payment Log');
+            if (newNote === null) return;
+
+            entry.date = cleanDate;
+            entry.amount = newAmount;
+            entry.note = newNote.trim();
+            // Keep the patient's main bill/date in sync when the first registration entry is edited.
+            if (historyIndex === 0) {
+                patient.date = cleanDate;
+                patient.payment = newAmount;
+            }
+            saveData();
+            openHistoryModal(patientId);
+            showToast('Payment history updated successfully!');
+        }
+
+        function deletePaymentHistory(patientId, historyIndex) {
+            const patient = patients.find(item => item.id === patientId);
+            if (!patient || !patient.history || !patient.history[historyIndex]) return;
+            if (!confirm('Delete this payment history entry? This cannot be undone.')) return;
+            patient.history.splice(historyIndex, 1);
+            saveData();
+            openHistoryModal(patientId);
+            showToast('Payment history entry deleted.');
+        }
+
+        // ==================== TREATMENT / SHADE SYSTEM ====================
+        const TX_TREATS = ['RCT', 'Fixed Braces', 'Panel Bridge'];
+        const TX_WIRES = ['0.12', '0.14', '0.16', '0.18', '0.662'];
+        const TX_EXTRA = ['Power Change', 'Lancse'];
+        const TX_SHADES = ['A1', 'A2', 'A3', 'A3.5', 'B1', 'B2', 'B3', 'B4', 'C1', 'C2', 'C3', 'C4', 'D1', 'D3', 'D4'];
+        const TX_QUAD = [['lu', 'Left up'], ['ru', 'Right up'], ['ld', 'Left down'], ['rd', 'Right down']];
+
+        function txCross(prefix, key, title) {
+            const inputs = TX_QUAD.map(q => `<input type="text" inputmode="numeric" maxlength="8" id="${prefix}-${key}-${q[0]}" placeholder="${q[1]}" autocomplete="off" oninput="this.value=this.value.replace(/[^1-8]/g,'')">`).join('');
+            return `<div id="${prefix}-${key}-box" class="tx-box hidden"><div class="tx-ttl">${title} tooth numbers (1 to 8, up to 8 in each box)</div><div class="tx-cross">${inputs}</div></div>`;
+        }
+
+        function renderTreat(prefix) {
+            const box = document.getElementById(prefix + '-treat');
+            if (!box) return;
+            const chip = (name, val, onchange) => `<label class="tx-chip"><input type="checkbox" name="${prefix}-${name}" value="${val}"${onchange ? ` onchange="${onchange}"` : ''}><span>${val}</span></label>`;
+            const tick = (name, val) => `<label class="tx-tk"><input type="checkbox" name="${prefix}-${name}" value="${val}"><span>${val}</span></label>`;
+            box.innerHTML = `
+                <div class="block text-xs font-semibold text-slate-600 mb-1">Treatment Required</div>
+                <div class="tx-chips">${TX_TREATS.map(t => chip('t', t, `txToggle('${prefix}')`)).join('')}</div>
+                ${txCross(prefix, 'rct', 'RCT')}
+                ${txCross(prefix, 'br', 'Panel Bridge')}
+                <div id="${prefix}-fx-box" class="tx-box hidden">
+                    <div class="tx-ttl">Fixed Braces (tick to save)</div>
+                    <div class="tx-group"><div class="tx-gt">Wire size</div>${TX_WIRES.map(w => tick('fw', w)).join('')}</div>
+                    <div class="tx-group"><div class="tx-gt">Extra</div>${TX_EXTRA.map(w => tick('fe', w)).join('')}</div>
+                </div>
+                <div class="block text-xs font-semibold text-slate-600 mt-4 mb-1">Shade</div>
+                <div class="tx-group" style="margin-top:0"><div class="tx-chips">${TX_SHADES.map(x => chip('sh', x)).join('')}</div></div>`;
+        }
+
+        function txToggle(prefix) {
+            const on = n => { const c = document.querySelector(`input[name="${prefix}-t"][value="${n}"]`); return !!(c && c.checked); };
+            const set = (id, show) => {
+                const el = document.getElementById(`${prefix}-${id}-box`);
+                if (!el) return;
+                el.classList.toggle('hidden', !show);
+                if (!show) el.querySelectorAll('input').forEach(i => { if (i.type === 'checkbox') i.checked = false; else i.value = ''; });
+            };
+            set('rct', on('RCT'));
+            set('br', on('Panel Bridge'));
+            set('fx', on('Fixed Braces'));
+        }
+
+        function getTreat(prefix) {
+            const vals = n => [...document.querySelectorAll(`input[name="${prefix}-${n}"]:checked`)].map(x => x.value);
+            const treat = vals('t');
+            const quad = key => {
+                const o = {};
+                TX_QUAD.forEach(q => { o[q[0]] = document.getElementById(`${prefix}-${key}-${q[0]}`).value; });
+                return o;
+            };
+            return {
+                treat,
+                rct: treat.includes('RCT') ? quad('rct') : null,
+                bridge: treat.includes('Panel Bridge') ? quad('br') : null,
+                braces: treat.includes('Fixed Braces') ? { w: vals('fw'), e: vals('fe') } : null,
+                shade: vals('sh')
+            };
+        }
+
+        function setTreat(prefix, tx) {
+            tx = tx || {};
+            const chk = (n, arr) => document.querySelectorAll(`input[name="${prefix}-${n}"]`).forEach(x => { x.checked = (arr || []).includes(x.value); });
+            chk('t', tx.treat);
+            txToggle(prefix);
+            chk('fw', tx.braces && tx.braces.w);
+            chk('fe', tx.braces && tx.braces.e);
+            chk('sh', tx.shade);
+            const sq = (key, o) => TX_QUAD.forEach(q => { document.getElementById(`${prefix}-${key}-${q[0]}`).value = (o && o[q[0]]) || ''; });
+            sq('rct', tx.rct);
+            sq('br', tx.bridge);
+        }
+
+        function txTags(p) {
+            const tx = p.tx;
+            if (!tx) return '';
+            const tags = [...(tx.treat || [])];
+            if (tx.braces && (tx.braces.w || []).length) tags.push('Wire ' + tx.braces.w.join('/'));
+            if ((tx.shade || []).length) tags.push('Shade ' + tx.shade.join('/'));
+            if (!tags.length) return '';
+            return `<div class="mt-1 flex flex-wrap gap-1">${tags.map(t => `<span class="px-1.5 py-0.5 rounded-md bg-cyan-50 text-cyan-700 text-[10px] font-semibold">${escapeHistoryText(t)}</span>`).join('')}</div>`;
+        }
+
+        function txDetailsHtml(p) {
+            const tx = p.tx;
+            if (!tx) return '';
+            const rows = [];
+            const quadTxt = o => `Left up: ${o.lu || '-'} | Right up: ${o.ru || '-'} | Left down: ${o.ld || '-'} | Right down: ${o.rd || '-'}`;
+            if ((tx.treat || []).length) rows.push(['Treatment', tx.treat.join(', ')]);
+            if (tx.rct) rows.push(['RCT teeth', quadTxt(tx.rct)]);
+            if (tx.bridge) rows.push(['Panel Bridge teeth', quadTxt(tx.bridge)]);
+            if (tx.braces) rows.push(['Fixed Braces', `Wire: ${(tx.braces.w || []).join(', ') || '-'} | Extra: ${(tx.braces.e || []).join(', ') || '-'}`]);
+            if ((tx.shade || []).length) rows.push(['Shade', tx.shade.join(', ')]);
+            if (!rows.length) return '';
+            return `<div class="bg-cyan-50 border border-cyan-100 p-3 rounded-xl text-xs space-y-1">${rows.map(r => `<div><span class="font-bold text-cyan-800">${escapeHistoryText(r[0])}:</span> <span class="text-slate-700">${escapeHistoryText(r[1])}</span></div>`).join('')}</div>`;
+        }
+
+        renderTreat('np');
+        renderTreat('up');
+
+        // ==================== NEW PATIENT HANDLER ====================
+        function handleNewPatientSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('np-name').value;
+            const phone = document.getElementById('np-phone').value;
+            const age = parseInt(document.getElementById('np-age').value);
+            const gender = document.getElementById('np-gender').value;
+            const payment = parseFloat(document.getElementById('np-payment').value) || 0;
+            const procedure = document.getElementById('np-procedure').value;
+            const status = document.getElementById('np-status').value;
+            const date = document.getElementById('np-date').value || todayDateStr;
+
+            const initialHistory = [{ date: date, amount: payment, note: "Initial Registration Bill" }];
+            const newPatient = { id: Date.now(), name, phone, age, gender, payment, procedure, status, date, history: initialHistory, tx: getTreat('np') };
+            patients.unshift(newPatient);
+
+            saveData();
+            document.getElementById('new-patient-form').reset();
+            setTreat('np', null);
+            document.getElementById('np-date').value = todayDateStr;
+            showToast("New patient registered successfully!");
+            switchTab('records');
+        }
+
+        // ==================== UPDATE PATIENT HANDLERS & WEB3FORMS EMAIL ====================
+        function populateUpdateList() {
+            const datalist = document.getElementById('patient-list');
+            datalist.innerHTML = '';
+            patients.forEach(p => {
+                datalist.innerHTML += `<option value="${p.name}">`;
+            });
+
+            if (patients.length === 0) {
+                clearUpdateForm();
+            }
+        }
+
+        function onPatientSearchInput() {
+            const searchVal = document.getElementById('patient-search-input').value.trim();
+            const p = patients.find(item => 
+                item.name.toLowerCase() === searchVal.toLowerCase() ||
+                item.name.toLowerCase().includes(searchVal.toLowerCase())
+            );
+
+            const badge = document.getElementById('selected-patient-badge');
+            if (p) {
+                document.getElementById('up-id').value = p.id;
+                document.getElementById('display-selected-name').innerText = `${p.name} (${p.phone})`;
+                badge.classList.remove('hidden');
+
+                document.getElementById('up-payment').value = "";
+                document.getElementById('up-payment-date').value = todayDateStr;
+                document.getElementById('current-balance-hint').innerText = `Remaining Balance: Rs ${(Number(p.payment) || 0).toLocaleString()}`;
+                document.getElementById('up-procedure').value = p.procedure;
+                document.getElementById('up-status').value = p.status;
+                setTreat('up', p.tx);
+
+                // Fill the registration editor for this same patient record.
+                document.getElementById('cr-name').value = p.name || '';
+                document.getElementById('cr-phone').value = p.phone || '';
+                document.getElementById('cr-age').value = p.age || '';
+                document.getElementById('cr-gender').value = p.gender || 'Other';
+                document.getElementById('cr-date').value = p.date || todayDateStr;
+                document.getElementById('cr-procedure').value = p.procedure || p.problem || p.problemNote || p.notes || document.getElementById('up-procedure').value || '';
+
+                renderPaymentHistory(p.history || []);
+            } else {
+                clearUpdateForm();
+            }
+        }
+
+        function renderPaymentHistory(historyArray) {
+            const container = document.getElementById('payment-history-container');
+            container.innerHTML = '';
+
+            if (!historyArray || historyArray.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 italic text-[11px]">No payment history recorded yet.</p>`;
+                return;
+            }
+
+            historyArray.forEach((h) => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-white px-2.5 py-1.5 rounded-lg border border-cyan-100">
+                        <span class="text-slate-600"><i class="fa-regular fa-calendar text-cyan-600"></i> ${h.date} - <span class="font-medium text-slate-800">${h.note || 'Payment Update'}</span></span>
+                        <span class="font-bold text-emerald-600">Rs ${(Number(h.amount) || 0).toLocaleString()}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function clearUpdateForm() {
+            document.getElementById('up-id').value = "";
+            document.getElementById('up-payment').value = "";
+            document.getElementById('current-balance-hint').innerText = "";
+            document.getElementById('up-procedure').value = "";
+            document.getElementById('selected-patient-badge').classList.add('hidden');
+            document.getElementById('payment-history-container').innerHTML = "";
+            setTreat('up', null);
+        }
+
+        function handleUpdatePatientSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('up-id').value;
+            if (!id) {
+                alert("Please search and select a valid patient name first.");
+                return;
+            }
+
+            const p = patients.find(item => item.id == id);
+            if (p) {
+                const payAmount = parseFloat(document.getElementById('up-payment').value) || 0;
+                const payDate = document.getElementById('up-payment-date').value || todayDateStr;
+
+                if (payAmount > 0) {
+                    p.payment = Math.max(0, (Number(p.payment) || 0) - payAmount);
+
+                    if (!p.history) p.history = [];
+
+                    p.history.unshift({
+                        date: payDate,
+                        amount: payAmount,
+                        note: `Payment Received / Deducted`
+                    });
+                }
+
+                p.procedure = document.getElementById('up-procedure').value;
+                p.status = document.getElementById('up-status').value;
+                p.tx = getTreat('up');
+
+                saveData();
+
+                // Send Email via Web3Forms directly to zohaibrisingstar@gmail.com
+                sendWeb3FormEmail(p.name, payAmount, p.payment);
+
+                document.getElementById('patient-search-input').value = "";
+                clearUpdateForm();
+                showToast("Patient record updated & email sent!");
+                switchTab('records');
+            }
+        }
+
+        function sendWeb3FormEmail(patientName, paidAmount, remainingBalance) {
+            const formData = new FormData();
+            formData.append("access_key", "f9f7833a-967b-4022-b9cf-89cb13f27664"); // Pre-configured Web3Forms Access Key
+            formData.append("subject", `Patient Update: ${patientName}`);
+            formData.append("message", `Patient Name: ${patientName}\nPayment Paid/Deducted: Rs ${paidAmount}\nRemaining Balance: Rs ${remainingBalance}\nDate: ${todayDateStr}`);
+            formData.append("to", "zohaibrisingstar@gmail.com");
+
+            fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Email sent success:", data);
+            })
+            .catch(error => {
+                console.error("Email send error:", error);
+            });
+        }
+
+        // ==================== CHANGE REGISTRATION / PATIENT DETAILS ====================
+        function toggleChangeRegistration() {
+            const panel = document.getElementById('change-registration-panel');
+            const arrow = document.getElementById('change-registration-arrow');
+            panel.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+            const selectedId = document.getElementById('up-id').value;
+            if (!selectedId) {
+                showToast('Search and select a patient first.');
+                document.getElementById('patient-search-input').focus();
+            }
+        }
+
+        function handleChangeRegistrationSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('up-id').value;
+            const p = patients.find(item => item.id == id);
+            if (!p) {
+                alert('Please search and select a patient in Update Patient first.');
+                document.getElementById('patient-search-input').focus();
+                return;
+            }
+
+            const oldName = p.name;
+            p.name = document.getElementById('cr-name').value.trim();
+            p.phone = document.getElementById('cr-phone').value.trim();
+            p.age = parseInt(document.getElementById('cr-age').value, 10);
+            p.gender = document.getElementById('cr-gender').value;
+            p.date = document.getElementById('cr-date').value || p.date || todayDateStr;
+            p.procedure = document.getElementById('cr-procedure').value.trim();
+            // Keep alternate problem-note fields synchronized for older patient records.
+            if ('problem' in p) p.problem = p.procedure;
+            if ('problemNote' in p) p.problemNote = p.procedure;
+            if ('notes' in p && !p.procedure) p.notes = '';
+
+            // Keep any stored history notes in sync when they mention the old patient name.
+            if (Array.isArray(p.history)) {
+                p.history = p.history.map(h => ({
+                    ...h,
+                    note: typeof h.note === 'string' ? h.note.replaceAll(oldName, p.name) : h.note
+                }));
+            }
+
+            saveData();
+            document.getElementById('patient-search-input').value = p.name;
+            document.getElementById('up-id').value = p.id;
+            document.getElementById('display-selected-name').innerText = `${p.name} (${p.phone})`;
+            document.getElementById('selected-patient-badge').classList.remove('hidden');
+            renderPaymentHistory(p.history || []);
+            showToast('Registration details updated throughout the website!');
+        }
+
+        // ==================== DELETE PATIENT HANDLERS ====================
+        function renderDeleteTable() {
+            const tbody = document.getElementById('delete-patients-tbody');
+            tbody.innerHTML = '';
+
+            if (patients.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 text-xs">No patient records available to delete.</td></tr>`;
+                return;
+            }
+
+            patients.forEach(p => {
+                const statusColor = p.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-3.5 font-semibold text-slate-800">${p.name}</td>
+                        <td class="p-3.5 text-slate-600">${p.phone}</td>
+                        <td class="p-3.5 text-slate-700">${p.procedure}</td>
+                        <td class="p-3.5 font-semibold text-emerald-600">Rs ${(Number(p.payment) || 0).toLocaleString()}</td>
+                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${statusColor}">${p.status}</span></td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="deletePatientRecord(${p.id})" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-semibold transition-all">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deletePatientRecord(id) {
+            if (confirm("Are you sure you want to permanently delete this patient record?")) {
+                patients = patients.filter(p => p.id !== id);
+                saveData();
+                showToast("Patient record deleted from entire system!");
+            }
+        }
+        document.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+});
+
+document.addEventListener("keydown", function(e) {
+    if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && e.key.toUpperCase() === "U")
+    ) {
+        e.preventDefault();
+        return false;
+    }
+});
+    </script>
+</body>
+</html>
